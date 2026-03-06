@@ -1,0 +1,747 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Care Tracker">
+<meta name="theme-color" content="#1f2a44">
+<title>Dementia Careblazers | Daily Tracker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Lato:wght@300;400;700&family=Montserrat:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy: #1f2a44;
+    --rust: #b05c45;
+    --taupe: #d8c9b3;
+    --sage: #81988e;
+    --ivory: #f8f6f3;
+    --white: #ffffff;
+    --taupe-light: #ede5d8;
+    --text-dark: #1f2a44;
+    --text-mid: #4a5568;
+    --text-light: #718096;
+    --border: #e8e0d5;
+    --shadow: 0 2px 12px rgba(31,42,68,0.08);
+    --radius: 12px;
+    --radius-sm: 8px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  html, body { height: 100%; font-family: 'Lato', sans-serif; background: var(--ivory); color: var(--text-dark); overflow: hidden; }
+
+  #app { display: flex; flex-direction: column; height: 100dvh; max-width: 480px; margin: 0 auto; background: var(--ivory); }
+
+  /* HEADER */
+  .app-header { background: var(--navy); padding: 14px 20px 12px; flex-shrink: 0; display: flex; align-items: center; justify-content: space-between; }
+  .header-title { font-family: 'Playfair Display', serif; font-size: 17px; font-weight: 700; color: var(--white); line-height: 1.2; }
+  .header-sub { font-family: 'Lato', sans-serif; font-size: 11px; color: var(--taupe); letter-spacing: 0.06em; text-transform: uppercase; margin-top: 1px; }
+  .header-date { font-family: 'Lato', sans-serif; font-size: 12px; color: var(--taupe); text-align: right; line-height: 1.5; }
+
+  /* TAB BAR */
+  .tab-bar { display: flex; background: var(--navy); border-top: 1px solid rgba(255,255,255,0.08); flex-shrink: 0; }
+  .tab-btn { flex: 1; padding: 10px 4px 12px; border: none; background: transparent; color: rgba(255,255,255,0.45); font-family: 'Montserrat', sans-serif; font-size: 9.5px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 4px; transition: color 0.2s; }
+  .tab-btn.active { color: var(--taupe); }
+  .tab-btn svg { width: 20px; height: 20px; }
+
+  /* SCROLL */
+  .tab-content { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; padding-bottom: 24px; }
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+
+  /* TYPOGRAPHY */
+  .section-label { font-family: 'Montserrat', sans-serif; font-size: 10px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-light); padding: 20px 20px 8px; }
+
+  /* CARDS */
+  .card { background: var(--white); border-radius: var(--radius); margin: 0 16px 12px; box-shadow: var(--shadow); overflow: hidden; }
+  .card-header { padding: 14px 16px 10px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 10px; }
+  .card-icon { width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 16px; }
+  .card-header-text h3 { font-family: 'Playfair Display', serif; font-size: 15px; font-weight: 600; color: var(--navy); }
+  .card-header-text p { font-size: 12px; color: var(--text-light); margin-top: 1px; line-height: 1.4; }
+  .card-body { padding: 14px 16px; }
+
+  /* FORMS */
+  label { display: block; font-family: 'Montserrat', sans-serif; font-size: 10.5px; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; color: var(--text-mid); margin-bottom: 6px; }
+  input[type="text"], input[type="time"], input[type="date"], select, textarea { width: 100%; padding: 10px 12px; border: 1.5px solid var(--border); border-radius: var(--radius-sm); font-family: 'Lato', sans-serif; font-size: 14px; color: var(--text-dark); background: var(--ivory); outline: none; transition: border-color 0.2s; -webkit-appearance: none; appearance: none; }
+  input:focus, select:focus, textarea:focus { border-color: var(--sage); background: var(--white); }
+  textarea { resize: none; min-height: 72px; line-height: 1.5; }
+  .form-row { margin-bottom: 14px; }
+  .form-row:last-child { margin-bottom: 0; }
+  .form-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+  /* CHIPS */
+  .chip-group { display: flex; flex-wrap: wrap; gap: 7px; margin-bottom: 14px; }
+  .chip { padding: 6px 12px; border-radius: 20px; border: 1.5px solid var(--border); background: var(--white); font-family: 'Lato', sans-serif; font-size: 13px; color: var(--text-mid); cursor: pointer; transition: all 0.15s; user-select: none; }
+  .chip.selected { background: var(--navy); border-color: var(--navy); color: var(--white); }
+  .chip-label { font-family: 'Montserrat', sans-serif; font-size: 10px; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase; color: var(--text-light); margin-bottom: 8px; }
+
+  /* SLIDER */
+  .intensity-row { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+  .int-lbl { font-size: 11px; color: var(--text-light); white-space: nowrap; }
+  input[type="range"] { flex: 1; -webkit-appearance: none; height: 4px; border-radius: 2px; background: linear-gradient(to right, var(--sage), var(--rust)); outline: none; }
+  input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 20px; height: 20px; border-radius: 50%; background: var(--navy); border: 3px solid var(--white); box-shadow: 0 1px 6px rgba(0,0,0,0.2); }
+  .int-val { font-family: 'Montserrat', sans-serif; font-weight: 700; font-size: 15px; color: var(--navy); min-width: 20px; text-align: center; }
+
+  /* MOOD */
+  .mood-row { display: flex; gap: 8px; margin-bottom: 14px; }
+  .mood-btn { flex: 1; padding: 10px 4px; border: 1.5px solid var(--border); border-radius: var(--radius-sm); background: var(--white); cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 4px; transition: all 0.15s; }
+  .mood-btn .emoji { font-size: 22px; }
+  .mood-btn .mword { font-size: 10px; font-family: 'Montserrat', sans-serif; font-weight: 600; color: var(--text-light); }
+  .mood-btn.selected { border-color: var(--navy); background: var(--navy); }
+  .mood-btn.selected .mword { color: var(--taupe); }
+
+  /* BUTTONS */
+  .btn-primary { width: 100%; padding: 14px; background: var(--rust); color: var(--white); border: none; border-radius: var(--radius-sm); font-family: 'Montserrat', sans-serif; font-size: 13px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; cursor: pointer; transition: background 0.2s, transform 0.1s; margin-top: 4px; }
+  .btn-primary:active { background: #9a4f3b; transform: scale(0.99); }
+  .btn-sec { width: 100%; padding: 12px; background: transparent; color: var(--navy); border: 1.5px solid var(--navy); border-radius: var(--radius-sm); font-family: 'Montserrat', sans-serif; font-size: 12px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; cursor: pointer; transition: all 0.2s; margin-top: 8px; }
+
+  /* DETECTIVE TIP */
+  .dtip { background: var(--taupe-light); border-left: 3px solid var(--sage); border-radius: 0 var(--radius-sm) var(--radius-sm) 0; padding: 10px 14px; margin: 0 16px 12px; font-size: 13px; color: var(--text-mid); line-height: 1.5; }
+  .dtip strong { color: var(--navy); }
+
+  /* HISTORY */
+  .hdate-label { font-family: 'Montserrat', sans-serif; font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-light); padding: 16px 20px 6px; }
+  .hentry { background: var(--white); border-radius: var(--radius); margin: 0 16px 8px; box-shadow: var(--shadow); overflow: hidden; }
+  .hentry-top { padding: 12px 14px 10px; display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 1px solid var(--border); }
+  .badge { display: inline-flex; align-items: center; gap: 5px; padding: 3px 8px; border-radius: 12px; font-family: 'Montserrat', sans-serif; font-size: 9px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; }
+  .b-beh { background: #e8f0fe; color: #3c5fad; } .b-slp { background: #e8f4fd; color: #2980b9; } .b-eat { background: #fef9e7; color: #b7950b; } .b-mood { background: #fdf2f8; color: #9b59b6; } .b-med { background: #e9f7ef; color: #1e8449; }
+  .etime { font-size: 11px; color: var(--text-light); margin-top: 2px; }
+  .edel { background: none; border: none; cursor: pointer; color: var(--text-light); font-size: 16px; padding: 2px 4px; line-height: 1; }
+  .hentry-body { padding: 10px 14px 12px; }
+  .emain { font-size: 14px; color: var(--navy); font-weight: 700; margin-bottom: 4px; }
+  .edetail { font-size: 12px; color: var(--text-mid); line-height: 1.5; }
+  .enote { font-size: 12px; color: var(--text-mid); font-style: italic; margin-top: 4px; }
+  .edots { display: flex; align-items: center; gap: 4px; margin-top: 4px; font-size: 11px; color: var(--text-light); }
+  .dots { display: flex; gap: 2px; }
+  .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--border); }
+  .dot.on { background: var(--rust); }
+
+  /* EMPTY */
+  .empty { text-align: center; padding: 48px 32px; color: var(--text-light); }
+  .empty .eico { font-size: 40px; margin-bottom: 12px; }
+  .empty p { font-size: 14px; line-height: 1.6; }
+
+  /* STATS */
+  .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 0 16px; margin-bottom: 12px; }
+  .stat-card { background: var(--white); border-radius: var(--radius); padding: 14px; box-shadow: var(--shadow); text-align: center; }
+  .stat-n { font-family: 'Playfair Display', serif; font-size: 28px; font-weight: 700; color: var(--navy); line-height: 1; }
+  .stat-l { font-family: 'Montserrat', sans-serif; font-size: 9.5px; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase; color: var(--text-light); margin-top: 4px; }
+  .barchart { padding: 0 16px; margin-bottom: 16px; }
+  .bar-row { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+  .bar-name { font-size: 12px; color: var(--text-mid); width: 90px; flex-shrink: 0; }
+  .bar-track { flex: 1; background: var(--border); border-radius: 4px; height: 8px; overflow: hidden; }
+  .bar-fill { height: 100%; border-radius: 4px; background: var(--rust); transition: width 0.4s; }
+  .bar-ct { font-size: 12px; color: var(--text-light); min-width: 20px; text-align: right; }
+  .range-tabs { display: flex; gap: 6px; padding: 0 16px; margin-bottom: 16px; }
+  .rtab { padding: 6px 12px; border-radius: 16px; border: 1.5px solid var(--border); background: var(--white); font-family: 'Montserrat', sans-serif; font-size: 10px; font-weight: 700; color: var(--text-light); cursor: pointer; transition: all 0.15s; }
+  .rtab.active { background: var(--navy); border-color: var(--navy); color: var(--white); }
+
+  /* PREP */
+  .prep-intro { background: var(--navy); padding: 20px; margin: 0 16px 16px; border-radius: var(--radius); }
+  .prep-intro h2 { font-family: 'Playfair Display', serif; font-size: 18px; color: var(--white); margin-bottom: 6px; }
+  .prep-intro p { font-size: 13px; color: var(--taupe); line-height: 1.6; }
+  .prep-item { background: var(--white); border-radius: var(--radius); margin: 0 16px 8px; padding: 14px 16px; box-shadow: var(--shadow); display: flex; gap: 12px; align-items: flex-start; }
+  .pico { font-size: 20px; flex-shrink: 0; margin-top: 1px; }
+  .ptxt h4 { font-family: 'Montserrat', sans-serif; font-size: 12px; font-weight: 700; color: var(--navy); margin-bottom: 3px; text-transform: uppercase; letter-spacing: 0.04em; }
+  .ptxt p { font-size: 13px; color: var(--text-mid); line-height: 1.5; }
+  .ptxt ul { margin: 4px 0 0 16px; }
+  .ptxt li { font-size: 13px; color: var(--text-mid); margin-bottom: 3px; line-height: 1.4; }
+  .concern-item { background: var(--white); border-radius: var(--radius); margin: 0 16px 8px; padding: 14px 16px; box-shadow: var(--shadow); border-left: 3px solid var(--rust); }
+  .c-beh { font-size: 14px; font-weight: 700; color: var(--navy); margin-bottom: 4px; }
+  .c-meta { font-size: 12px; color: var(--text-mid); line-height: 1.6; }
+  .appt-row { display: flex; gap: 10px; align-items: flex-end; padding: 0 16px; margin-bottom: 16px; }
+  .appt-row .form-row { flex: 1; margin: 0; }
+  .pbtn { padding: 10px 16px; background: var(--sage); color: var(--white); border: none; border-radius: var(--radius-sm); font-family: 'Montserrat', sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; cursor: pointer; white-space: nowrap; height: 40px; }
+
+  /* TOAST */
+  #toast { position: fixed; bottom: 90px; left: 50%; transform: translateX(-50%) translateY(20px); background: var(--navy); color: var(--white); padding: 10px 20px; border-radius: 24px; font-size: 13px; opacity: 0; transition: all 0.3s; pointer-events: none; z-index: 100; white-space: nowrap; }
+  #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  /* LOADING */
+  #loverlay { position: fixed; inset: 0; background: var(--navy); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 999; transition: opacity 0.4s; }
+  #loverlay.hidden { opacity: 0; pointer-events: none; }
+  .llogo { font-family: 'Playfair Display', serif; font-size: 24px; color: var(--white); margin-bottom: 8px; }
+  .lsub { font-family: 'Lato', sans-serif; font-size: 13px; color: var(--taupe); letter-spacing: 0.08em; text-transform: uppercase; }
+  .lspin { width: 32px; height: 32px; border: 3px solid rgba(255,255,255,0.2); border-top-color: var(--taupe); border-radius: 50%; animation: spin 0.8s linear infinite; margin-top: 24px; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  @media print {
+    .tab-bar, .app-header, #toast, #loverlay { display: none !important; }
+    .tab-panel { display: block !important; }
+    body, #app { overflow: auto; height: auto; }
+    .tab-content { overflow: visible; }
+  }
+</style>
+</head>
+<body>
+
+<div id="loverlay">
+  <div class="llogo">Careblazers</div>
+  <div class="lsub">Daily Tracker</div>
+  <div class="lspin"></div>
+</div>
+
+<div id="app">
+  <div class="app-header">
+    <div>
+      <div class="header-title">Careblazers Tracker</div>
+      <div class="header-sub">Daily Care Log</div>
+    </div>
+    <div class="header-date" id="hdate"></div>
+  </div>
+
+  <div class="tab-bar">
+    <button class="tab-btn active" onclick="switchTab('log')" id="tab-log">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+      Log
+    </button>
+    <button class="tab-btn" onclick="switchTab('history')" id="tab-history">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+      History
+    </button>
+    <button class="tab-btn" onclick="switchTab('patterns')" id="tab-patterns">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+      Patterns
+    </button>
+    <button class="tab-btn" onclick="switchTab('prep')" id="tab-prep">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+      Appt Prep
+    </button>
+  </div>
+
+  <div class="tab-content">
+
+    <!-- LOG TAB -->
+    <div class="tab-panel active" id="panel-log">
+      <div class="dtip"><strong>Noticing something?</strong> Log it now — the time, what happened right before, and how long it lasted. That's exactly what the doctor needs to know.</div>
+
+      <div class="section-label">What are you logging?</div>
+      <div class="chip-group" style="padding: 0 16px; margin-bottom: 4px;">
+        <div class="chip selected" onclick="setLogType(this,'behavior')">🧠 Behavior</div>
+        <div class="chip" onclick="setLogType(this,'sleep')">😴 Sleep</div>
+        <div class="chip" onclick="setLogType(this,'eating')">🍽 Eating</div>
+        <div class="chip" onclick="setLogType(this,'mood')">💛 My Mood</div>
+        <div class="chip" onclick="setLogType(this,'medication')">💊 Medication</div>
+      </div>
+
+      <!-- BEHAVIOR -->
+      <div id="form-behavior">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-icon" style="background:#e8f0fe;">🧠</div>
+            <div class="card-header-text"><h3>Behavior Log</h3><p>Every behavior is communication — what is it telling you?</p></div>
+          </div>
+          <div class="card-body">
+            <div class="form-row"><label>Antecedent — What happened right before?</label><textarea id="b-ant" placeholder="e.g. Getting ready for bed, a visitor left, mealtime was ending..."></textarea></div>
+            <div class="form-row"><label>Behavior — What did you observe?</label><textarea id="b-beh" placeholder="Describe what happened as specifically as you can..."></textarea></div>
+            <div class="form-row"><label>Consequence — What happened after / what helped?</label><textarea id="b-con" placeholder="e.g. Redirection worked, took 10 min to calm, nothing helped..."></textarea></div>
+            <div class="form-row">
+              <div class="chip-label">Category</div>
+              <div class="chip-group">
+                <div class="chip" onclick="toggleChip(this)">Agitation</div>
+                <div class="chip" onclick="toggleChip(this)">Repetition</div>
+                <div class="chip" onclick="toggleChip(this)">Wandering</div>
+                <div class="chip" onclick="toggleChip(this)">Sundowning</div>
+                <div class="chip" onclick="toggleChip(this)">Refusal</div>
+                <div class="chip" onclick="toggleChip(this)">Aggression</div>
+                <div class="chip" onclick="toggleChip(this)">Confusion</div>
+                <div class="chip" onclick="toggleChip(this)">Hallucination</div>
+                <div class="chip" onclick="toggleChip(this)">Other</div>
+              </div>
+            </div>
+            <div class="form-row">
+              <label>Intensity</label>
+              <div class="intensity-row">
+                <span class="int-lbl">Mild</span>
+                <input type="range" id="b-int" min="1" max="10" value="5" oninput="document.getElementById('b-intv').textContent=this.value">
+                <span class="int-lbl">Severe</span>
+                <span class="int-val" id="b-intv">5</span>
+              </div>
+            </div>
+            <div class="form-grid-2">
+              <div class="form-row"><label>Time</label><input type="time" id="b-time"></div>
+              <div class="form-row"><label>Duration</label><select id="b-dur"><option value="">Not sure</option><option>Under 5 min</option><option>5–15 min</option><option>15–30 min</option><option>30–60 min</option><option>Over 1 hour</option></select></div>
+            </div>
+            <button class="btn-primary" onclick="saveEntry('behavior')">Save Behavior Log</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- SLEEP -->
+      <div id="form-sleep" style="display:none;">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-icon" style="background:#e8f4fd;">😴</div>
+            <div class="card-header-text"><h3>Sleep Log</h3><p>Sleep patterns often reveal what the brain needs most.</p></div>
+          </div>
+          <div class="card-body">
+            <div class="form-grid-2">
+              <div class="form-row"><label>Bedtime</label><input type="time" id="s-bed"></div>
+              <div class="form-row"><label>Wake time</label><input type="time" id="s-wake"></div>
+            </div>
+            <div class="form-row"><label>Sleep quality</label><select id="s-qual"><option value="">Select...</option><option>Slept well through the night</option><option>Some waking, back to sleep</option><option>Frequent waking</option><option>Very restless / didn't sleep much</option></select></div>
+            <div class="form-row">
+              <div class="chip-label">Nighttime issues?</div>
+              <div class="chip-group" id="cg-sleep">
+                <div class="chip" onclick="toggleChip(this)">Wandering</div>
+                <div class="chip" onclick="toggleChip(this)">Confusion</div>
+                <div class="chip" onclick="toggleChip(this)">Sundowning</div>
+                <div class="chip" onclick="toggleChip(this)">Calling out</div>
+                <div class="chip" onclick="toggleChip(this)">Nightmares</div>
+                <div class="chip" onclick="toggleChip(this)">None</div>
+              </div>
+            </div>
+            <div class="form-row"><label>Notes</label><textarea id="s-notes" placeholder="Anything else worth noting..."></textarea></div>
+            <button class="btn-primary" onclick="saveEntry('sleep')">Save Sleep Log</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- EATING -->
+      <div id="form-eating" style="display:none;">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-icon" style="background:#fef9e7;">🍽</div>
+            <div class="card-header-text"><h3>Eating & Appetite Log</h3><p>Changes in appetite or eating are important to flag for the doctor.</p></div>
+          </div>
+          <div class="card-body">
+            <div class="form-row"><label>Meal</label><select id="e-meal"><option value="">Select...</option><option>Breakfast</option><option>Lunch</option><option>Dinner</option><option>Snack</option></select></div>
+            <div class="form-row"><label>How much did they eat?</label><select id="e-amt"><option value="">Select...</option><option>All of it</option><option>Most of it</option><option>About half</option><option>A few bites</option><option>Refused to eat</option></select></div>
+            <div class="form-row">
+              <div class="chip-label">Issues during the meal?</div>
+              <div class="chip-group" id="cg-eating">
+                <div class="chip" onclick="toggleChip(this)">Refused food</div>
+                <div class="chip" onclick="toggleChip(this)">Choking / coughing</div>
+                <div class="chip" onclick="toggleChip(this)">Difficulty swallowing</div>
+                <div class="chip" onclick="toggleChip(this)">Spilled / dropped</div>
+                <div class="chip" onclick="toggleChip(this)">Needed prompting</div>
+                <div class="chip" onclick="toggleChip(this)">No issues</div>
+              </div>
+            </div>
+            <div class="form-row"><label>Fluid intake today</label><select id="e-flu"><option value="">Select...</option><option>Good — drinking regularly</option><option>OK — some prompting needed</option><option>Poor — barely drank anything</option></select></div>
+            <div class="form-row"><label>Notes</label><textarea id="e-notes" placeholder="e.g. Refused favorite food, new texture issue..."></textarea></div>
+            <button class="btn-primary" onclick="saveEntry('eating')">Save Eating Log</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- MOOD -->
+      <div id="form-mood" style="display:none;">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-icon" style="background:#fdf2f8;">💛</div>
+            <div class="card-header-text"><h3>My Mood Check-In</h3><p>You before them — because their life depends on you.</p></div>
+          </div>
+          <div class="card-body">
+            <div class="form-row">
+              <label>How are you feeling right now?</label>
+              <div class="mood-row">
+                <button class="mood-btn" onclick="pickMood(this,'😔','Low')"><span class="emoji">😔</span><span class="mword">Low</span></button>
+                <button class="mood-btn" onclick="pickMood(this,'😰','Stressed')"><span class="emoji">😰</span><span class="mword">Stressed</span></button>
+                <button class="mood-btn" onclick="pickMood(this,'😐','Neutral')"><span class="emoji">😐</span><span class="mword">Neutral</span></button>
+                <button class="mood-btn" onclick="pickMood(this,'🙂','Okay')"><span class="emoji">🙂</span><span class="mword">Okay</span></button>
+                <button class="mood-btn" onclick="pickMood(this,'😊','Good')"><span class="emoji">😊</span><span class="mword">Good</span></button>
+              </div>
+            </div>
+            <div class="form-row">
+              <label>Stress level</label>
+              <div class="intensity-row">
+                <span class="int-lbl">Low</span>
+                <input type="range" id="m-str" min="1" max="10" value="5" oninput="document.getElementById('m-strv').textContent=this.value">
+                <span class="int-lbl">High</span>
+                <span class="int-val" id="m-strv">5</span>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="chip-label">What's contributing most?</div>
+              <div class="chip-group" id="cg-mood">
+                <div class="chip" onclick="toggleChip(this)">Exhaustion</div>
+                <div class="chip" onclick="toggleChip(this)">Feeling alone</div>
+                <div class="chip" onclick="toggleChip(this)">Worry</div>
+                <div class="chip" onclick="toggleChip(this)">Frustration</div>
+                <div class="chip" onclick="toggleChip(this)">Grief</div>
+                <div class="chip" onclick="toggleChip(this)">Gratitude</div>
+                <div class="chip" onclick="toggleChip(this)">Hope</div>
+              </div>
+            </div>
+            <div class="form-row"><label>Anything you want to remember from today?</label><textarea id="m-notes" placeholder="This is just for you..."></textarea></div>
+            <button class="btn-primary" onclick="saveEntry('mood')">Save Check-In</button>
+          </div>
+        </div>
+        <div class="dtip">You're not doing it wrong. You're doing something hard. Checking in with yourself is one of the most important things you can do.</div>
+      </div>
+
+      <!-- MEDICATION -->
+      <div id="form-medication" style="display:none;">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-icon" style="background:#e9f7ef;">💊</div>
+            <div class="card-header-text"><h3>Medication Note</h3><p>Changes, missed doses, or reactions worth flagging for the doctor.</p></div>
+          </div>
+          <div class="card-body">
+            <div class="form-row"><label>Medication name</label><input type="text" id="med-nm" placeholder="e.g. Aricept, Namenda..."></div>
+            <div class="form-row"><label>Note type</label><select id="med-tp"><option value="">Select...</option><option>Given on time</option><option>Missed dose</option><option>Refused medication</option><option>New medication started</option><option>Dosage changed</option><option>Possible side effect</option><option>Medication ended / stopped</option></select></div>
+            <div class="form-grid-2">
+              <div class="form-row"><label>Time given</label><input type="time" id="med-tm"></div>
+              <div class="form-row"><label>Prescriber</label><input type="text" id="med-pr" placeholder="Dr..."></div>
+            </div>
+            <div class="form-row"><label>Notes / reaction observed</label><textarea id="med-nt" placeholder="e.g. Complained of dizziness, refused second attempt..."></textarea></div>
+            <button class="btn-primary" onclick="saveEntry('medication')">Save Medication Note</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- HISTORY TAB -->
+    <div class="tab-panel" id="panel-history">
+      <div id="hfilt" style="padding:16px 16px 0; display:flex; gap:8px; flex-wrap:wrap;">
+        <div class="rtab active" onclick="filtHistory(this,'all')">All</div>
+        <div class="rtab" onclick="filtHistory(this,'behavior')">🧠 Behavior</div>
+        <div class="rtab" onclick="filtHistory(this,'sleep')">😴 Sleep</div>
+        <div class="rtab" onclick="filtHistory(this,'eating')">🍽 Eating</div>
+        <div class="rtab" onclick="filtHistory(this,'mood')">💛 Mood</div>
+        <div class="rtab" onclick="filtHistory(this,'medication')">💊 Meds</div>
+      </div>
+      <div id="hlist" style="margin-top:8px;"></div>
+    </div>
+
+    <!-- PATTERNS TAB -->
+    <div class="tab-panel" id="panel-patterns">
+      <div class="section-label">Time range</div>
+      <div class="range-tabs">
+        <div class="rtab active" onclick="setRange(this,7)">7 days</div>
+        <div class="rtab" onclick="setRange(this,14)">14 days</div>
+        <div class="rtab" onclick="setRange(this,30)">30 days</div>
+        <div class="rtab" onclick="setRange(this,9999)">All time</div>
+      </div>
+      <div class="section-label">Overview</div>
+      <div class="stats-grid" id="sg"></div>
+      <div class="section-label">Most frequent behaviors</div>
+      <div class="barchart" id="bchart"></div>
+      <div class="section-label">Time of day</div>
+      <div class="barchart" id="tchart"></div>
+      <div class="dtip"><strong>Patterns are clues.</strong> If you're seeing the same behavior at the same time of day, that's information your doctor needs. Log it now, share it at the next appointment.</div>
+    </div>
+
+    <!-- PREP TAB -->
+    <div class="tab-panel" id="panel-prep">
+      <div class="prep-intro">
+        <h2>Appointment Prep</h2>
+        <p>Log concerns as they happen — not the night before. Everything you've tracked is here, ready to bring to the doctor.</p>
+      </div>
+
+      <div class="section-label">Appointment details</div>
+      <div class="appt-row">
+        <div class="form-row"><label>Date</label><input type="date" id="appt-dt"></div>
+        <div class="form-row" style="width:120px;flex:none;"><label>Doctor</label><input type="text" id="appt-dr" placeholder="Dr..."></div>
+      </div>
+
+      <div class="section-label">Your questions & concerns</div>
+      <div id="pconcerns"></div>
+      <div class="card" style="margin:0 16px 12px;">
+        <div class="card-body">
+          <div class="form-row"><label>Add a question or concern</label><input type="text" id="nc" placeholder="e.g. The pacing started 2 weeks ago..."></div>
+          <button class="btn-primary" onclick="addConcern()" style="margin-top:0;">Add to List</button>
+        </div>
+      </div>
+
+      <div class="section-label">Recent behavior summary</div>
+      <div id="pbsum"></div>
+
+      <div class="prep-item"><div class="pico">💊</div><div class="ptxt"><h4>Medication list reminder</h4><p>Bring: medication name, prescriber, dose, and any over-the-counter medications. Your doctor needs the full picture to avoid interactions.</p></div></div>
+      <div class="prep-item"><div class="pico">📝</div><div class="ptxt"><h4>During the appointment</h4><ul><li>Write down the doctor's responses as they speak</li><li>Ask them to repeat or explain anything unclear — it's okay</li><li>You can say: "I want to make sure I understood — is this what you meant?"</li><li>If your loved one may become upset, hand your list to the nurse beforehand</li></ul></div></div>
+      <div class="prep-item"><div class="pico">👥</div><div class="ptxt"><h4>If your loved one gets upset at the appointment</h4><ul><li>Call the office ahead to explain the situation</li><li>Bring someone to sit with them while you speak privately</li><li>Ask if questions can be sent through the patient portal in advance</li></ul></div></div>
+
+      <div style="padding:0 16px; margin-bottom:24px; display:flex; gap:10px;">
+        <button class="pbtn" onclick="window.print()" style="flex:1;">🖨 Print / Save PDF</button>
+        <button class="pbtn" onclick="copyPrep()" style="flex:1; background:var(--rust);">📋 Copy Summary</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+<div id="toast"></div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, orderBy, query, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+const cfg = {
+  apiKey: "AIzaSyDj_itv3sWejCKhq61xampAlcOT21W6yVU",
+  authDomain: "dc-behavior-tracker.firebaseapp.com",
+  projectId: "dc-behavior-tracker",
+  storageBucket: "dc-behavior-tracker.firebasestorage.app",
+  messagingSenderId: "399037072381",
+  appId: "1:399037072381:web:fb8b0b6d016bc064294f94"
+};
+
+const fbApp = initializeApp(cfg);
+const db = getFirestore(fbApp);
+window._db = db;
+window._col = (path) => collection(db, path);
+window._add = addDoc;
+window._get = getDocs;
+window._del = deleteDoc;
+window._doc = (path, id) => doc(db, path, id);
+window._q = (ref, ...constraints) => query(ref, ...constraints);
+window._ob = orderBy;
+
+window.loadEntries();
+</script>
+
+<script>
+let entries = [];
+let logType = 'behavior';
+let moodEmoji = '', moodLabel = '';
+let hFilter = 'all';
+let range = 7;
+let concerns = JSON.parse(localStorage.getItem('dcb-cx') || '[]');
+
+// Init
+(function(){
+  const d = new Date();
+  const days = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+  const mos = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  document.getElementById('hdate').innerHTML = `${days[d.getDay()]}<br>${mos[d.getMonth()]} ${d.getDate()}`;
+  const hh = String(d.getHours()).padStart(2,'0'), mm = String(d.getMinutes()).padStart(2,'0');
+  setTimeout(()=>{ ['b-time','s-bed','s-wake','med-tm'].forEach(id=>{ const el=document.getElementById(id); if(el&&!el.value) el.value=`${hh}:${mm}`; }); }, 200);
+})();
+
+function switchTab(t) {
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('panel-'+t).classList.add('active');
+  document.getElementById('tab-'+t).classList.add('active');
+  if(t==='history') renderHistory();
+  if(t==='patterns') renderPatterns();
+  if(t==='prep') renderPrep();
+}
+window.switchTab = switchTab;
+
+function setLogType(el, t) {
+  document.querySelectorAll('.chip-group .chip').forEach(c=>{ if(c.getAttribute('onclick')&&c.getAttribute('onclick').includes('setLogType')) c.classList.remove('selected'); });
+  el.classList.add('selected');
+  logType = t;
+  ['behavior','sleep','eating','mood','medication'].forEach(x=>{ document.getElementById('form-'+x).style.display = x===t?'block':'none'; });
+}
+window.setLogType = setLogType;
+
+function toggleChip(el) { el.classList.toggle('selected'); }
+window.toggleChip = toggleChip;
+
+function getChips(container) {
+  const sel = [];
+  container.querySelectorAll('.chip.selected').forEach(c=>sel.push(c.textContent.trim()));
+  return sel;
+}
+
+function pickMood(el, e, l) {
+  document.querySelectorAll('.mood-btn').forEach(b=>b.classList.remove('selected'));
+  el.classList.add('selected');
+  moodEmoji = e; moodLabel = l;
+}
+window.pickMood = pickMood;
+
+async function saveEntry(t) {
+  let e = { type: t, timestamp: new Date().toISOString() };
+  if(t==='behavior') {
+    const beh = document.getElementById('b-beh').value.trim();
+    if(!beh) { toast('Please describe the behavior'); return; }
+    e.antecedent = document.getElementById('b-ant').value.trim();
+    e.behavior = beh;
+    e.consequence = document.getElementById('b-con').value.trim();
+    e.categories = getChips(document.getElementById('form-behavior'));
+    e.intensity = document.getElementById('b-int').value;
+    e.time = document.getElementById('b-time').value;
+    e.duration = document.getElementById('b-dur').value;
+  } else if(t==='sleep') {
+    e.bedtime = document.getElementById('s-bed').value;
+    e.waketime = document.getElementById('s-wake').value;
+    e.quality = document.getElementById('s-qual').value;
+    e.issues = getChips(document.getElementById('cg-sleep'));
+    e.notes = document.getElementById('s-notes').value.trim();
+  } else if(t==='eating') {
+    e.meal = document.getElementById('e-meal').value;
+    e.amount = document.getElementById('e-amt').value;
+    e.issues = getChips(document.getElementById('cg-eating'));
+    e.fluids = document.getElementById('e-flu').value;
+    e.notes = document.getElementById('e-notes').value.trim();
+  } else if(t==='mood') {
+    if(!moodLabel) { toast('Select a mood first'); return; }
+    e.moodEmoji = moodEmoji; e.moodLabel = moodLabel;
+    e.stress = document.getElementById('m-str').value;
+    e.factors = getChips(document.getElementById('cg-mood'));
+    e.notes = document.getElementById('m-notes').value.trim();
+  } else if(t==='medication') {
+    const nm = document.getElementById('med-nm').value.trim();
+    if(!nm) { toast('Enter a medication name'); return; }
+    e.medName = nm;
+    e.medType = document.getElementById('med-tp').value;
+    e.medTime = document.getElementById('med-tm').value;
+    e.prescriber = document.getElementById('med-pr').value.trim();
+    e.notes = document.getElementById('med-nt').value.trim();
+  }
+  try {
+    if(window._db) {
+      const ref = await window._add(window._col('entries'), e);
+      e.id = ref.id;
+    } else { e.id = Date.now().toString(); }
+    entries.unshift(e);
+    resetForm(t);
+    toast('Saved ✓');
+  } catch(err) {
+    console.error(err);
+    e.id = Date.now().toString();
+    entries.unshift(e);
+    resetForm(t);
+    toast('Saved ✓');
+  }
+}
+window.saveEntry = saveEntry;
+
+function resetForm(t) {
+  if(t==='behavior') {
+    ['b-ant','b-beh','b-con'].forEach(id=>document.getElementById(id).value='');
+    document.getElementById('b-int').value=5; document.getElementById('b-intv').textContent='5';
+    document.getElementById('b-dur').value='';
+    document.querySelectorAll('#form-behavior .chip').forEach(c=>c.classList.remove('selected'));
+  } else if(t==='sleep') {
+    document.getElementById('s-qual').value=''; document.getElementById('s-notes').value='';
+    document.querySelectorAll('#cg-sleep .chip').forEach(c=>c.classList.remove('selected'));
+  } else if(t==='eating') {
+    ['e-meal','e-amt','e-flu','e-notes'].forEach(id=>document.getElementById(id).value='');
+    document.querySelectorAll('#cg-eating .chip').forEach(c=>c.classList.remove('selected'));
+  } else if(t==='mood') {
+    document.querySelectorAll('.mood-btn').forEach(b=>b.classList.remove('selected'));
+    moodEmoji=''; moodLabel='';
+    document.getElementById('m-str').value=5; document.getElementById('m-strv').textContent='5';
+    document.getElementById('m-notes').value='';
+    document.querySelectorAll('#cg-mood .chip').forEach(c=>c.classList.remove('selected'));
+  } else if(t==='medication') {
+    ['med-nm','med-pr','med-nt'].forEach(id=>document.getElementById(id).value='');
+    document.getElementById('med-tp').value='';
+  }
+}
+
+window.loadEntries = async function() {
+  try {
+    if(!window._db) { setTimeout(window.loadEntries, 500); return; }
+    const q = window._q(window._col('entries'), window._ob('timestamp','desc'));
+    const snap = await window._get(q);
+    entries = [];
+    snap.forEach(d=>entries.push({ id:d.id, ...d.data() }));
+    document.getElementById('loverlay').classList.add('hidden');
+  } catch(err) {
+    console.error('Load error:', err);
+    document.getElementById('loverlay').classList.add('hidden');
+  }
+};
+
+async function deleteEntry(id) {
+  if(!confirm('Delete this entry?')) return;
+  try { if(window._db) await window._del(window._doc('entries', id)); } catch(e) { console.error(e); }
+  entries = entries.filter(e=>e.id!==id);
+  renderHistory(); toast('Deleted');
+}
+window.deleteEntry = deleteEntry;
+
+function filtHistory(el, f) {
+  document.querySelectorAll('#hfilt .rtab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active'); hFilter = f; renderHistory();
+}
+window.filtHistory = filtHistory;
+
+function renderHistory() {
+  const list = document.getElementById('hlist');
+  let filtered = hFilter==='all' ? entries : entries.filter(e=>e.type===hFilter);
+  if(!filtered.length) { list.innerHTML=`<div class="empty"><div class="eico">📋</div><p>No entries yet.<br>Start logging to see your history here.</p></div>`; return; }
+  const groups = {};
+  filtered.forEach(e=>{ const d=new Date(e.timestamp); const k=d.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'}); if(!groups[k])groups[k]=[]; groups[k].push(e); });
+  list.innerHTML = Object.entries(groups).map(([date,es])=>`<div><div class="hdate-label">${date}</div>${es.map(renderEntry).join('')}</div>`).join('');
+}
+
+const bmap = {behavior:'b-beh',sleep:'b-slp',eating:'b-eat',mood:'b-mood',medication:'b-med'};
+const lmap = {behavior:'Behavior',sleep:'Sleep',eating:'Eating',mood:'My Mood',medication:'Medication'};
+
+function renderEntry(e) {
+  const tm = e.time||e.bedtime||e.medTime||(e.timestamp?new Date(e.timestamp).toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'}):'');
+  let main='', detail='';
+  if(e.type==='behavior') {
+    main=e.behavior||''; const pts=[]; if(e.antecedent) pts.push(`<strong>Before:</strong> ${e.antecedent}`); if(e.consequence) pts.push(`<strong>After:</strong> ${e.consequence}`); if(e.duration) pts.push(`<strong>Duration:</strong> ${e.duration}`); detail=pts.join(' &nbsp;·&nbsp; ');
+  } else if(e.type==='sleep') {
+    main=e.quality||'Sleep logged'; const pts=[]; if(e.bedtime&&e.waketime) pts.push(`${e.bedtime} – ${e.waketime}`); if(e.issues&&e.issues.length) pts.push(e.issues.join(', ')); detail=pts.join(' &nbsp;·&nbsp; ');
+  } else if(e.type==='eating') {
+    main=`${e.meal||'Meal'} — ${e.amount||''}`; const pts=[]; if(e.issues&&e.issues.length) pts.push(e.issues.join(', ')); if(e.fluids) pts.push(`Fluids: ${e.fluids}`); detail=pts.join(' &nbsp;·&nbsp; ');
+  } else if(e.type==='mood') {
+    main=`${e.moodEmoji||''} ${e.moodLabel||'Check-in'}`; detail=`Stress: ${e.stress}/10${e.factors&&e.factors.length?' &nbsp;·&nbsp; '+e.factors.join(', '):''}`;
+  } else if(e.type==='medication') {
+    main=e.medName||'Medication'; detail=[e.medType, e.prescriber?`Dr. ${e.prescriber}`:'']. filter(Boolean).join(' &nbsp;·&nbsp; ');
+  }
+  const dots = e.type==='behavior'&&e.intensity ? `<div class="edots"><div class="dots">${Array.from({length:10},(_,i)=>`<div class="dot${i<parseInt(e.intensity)?' on':''}"></div>`).join('')}</div>${e.intensity}/10</div>` : '';
+  return `<div class="hentry"><div class="hentry-top"><div><span class="badge ${bmap[e.type]}">${lmap[e.type]}</span>${tm?`<div class="etime">${tm}</div>`:''}</div><button class="edel" onclick="deleteEntry('${e.id}')">✕</button></div><div class="hentry-body"><div class="emain">${main}</div>${detail?`<div class="edetail">${detail}</div>`:''}${dots}${e.notes?`<div class="enote">${e.notes}</div>`:''}</div></div>`;
+}
+
+function setRange(el, d) {
+  document.querySelectorAll('#panel-patterns .rtab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active'); range=d; renderPatterns();
+}
+window.setRange = setRange;
+
+function renderPatterns() {
+  const cut = new Date(); cut.setDate(cut.getDate()-range);
+  const re = range===9999 ? entries : entries.filter(e=>new Date(e.timestamp)>=cut);
+  const bc = re.filter(e=>e.type==='behavior').length;
+  const ai = bc ? (re.filter(e=>e.type==='behavior').reduce((s,e)=>s+parseInt(e.intensity||5),0)/bc).toFixed(1) : '—';
+  const mc = re.filter(e=>e.type==='mood').length;
+  const as = mc ? (re.filter(e=>e.type==='mood').reduce((s,e)=>s+parseInt(e.stress||5),0)/mc).toFixed(1) : '—';
+  document.getElementById('sg').innerHTML = `<div class="stat-card"><div class="stat-n">${bc}</div><div class="stat-l">Behaviors Logged</div></div><div class="stat-card"><div class="stat-n">${re.length}</div><div class="stat-l">Total Entries</div></div><div class="stat-card"><div class="stat-n">${ai}</div><div class="stat-l">Avg Intensity</div></div><div class="stat-card"><div class="stat-n">${as}</div><div class="stat-l">Avg Caregiver Stress</div></div>`;
+  const cats = {}; re.filter(e=>e.type==='behavior').forEach(e=>{ (e.categories||['Uncategorized']).forEach(c=>{ cats[c]=(cats[c]||0)+1; }); });
+  const sc = Object.entries(cats).sort((a,b)=>b[1]-a[1]).slice(0,8); const mx = sc[0]?.[1]||1;
+  document.getElementById('bchart').innerHTML = sc.length ? sc.map(([n,c])=>`<div class="bar-row"><div class="bar-name">${n}</div><div class="bar-track"><div class="bar-fill" style="width:${c/mx*100}%"></div></div><div class="bar-ct">${c}</div></div>`).join('') : '<div style="padding:8px 0;color:var(--text-light);font-size:13px;">No behavior data in this range</div>';
+  const tc = {'Morning (6–12pm)':0,'Afternoon (12–5pm)':0,'Evening (5–9pm)':0,'Night (9pm–6am)':0};
+  re.filter(e=>e.type==='behavior'&&e.time).forEach(e=>{ const h=parseInt(e.time.split(':')[0]); if(h>=6&&h<12) tc['Morning (6–12pm)']++; else if(h>=12&&h<17) tc['Afternoon (12–5pm)']++; else if(h>=17&&h<21) tc['Evening (5–9pm)']++; else tc['Night (9pm–6am)']++; });
+  const mt = Math.max(...Object.values(tc),1);
+  document.getElementById('tchart').innerHTML = Object.entries(tc).map(([n,c])=>`<div class="bar-row"><div class="bar-name">${n}</div><div class="bar-track"><div class="bar-fill" style="width:${c/mt*100}%;background:var(--sage);"></div></div><div class="bar-ct">${c}</div></div>`).join('');
+}
+
+function renderPrep() {
+  const ce = document.getElementById('pconcerns');
+  ce.innerHTML = concerns.length ? concerns.map((c,i)=>`<div class="concern-item"><div style="display:flex;justify-content:space-between;align-items:flex-start;"><div class="c-beh">${c.text}</div><button class="edel" onclick="rmConcern(${i})">✕</button></div>${c.added?`<div class="c-meta">Added ${new Date(c.added).toLocaleDateString()}</div>`:''}</div>`).join('') : `<div class="empty" style="padding:24px;"><p style="font-size:13px;">Add questions as they come to mind — not the night before.</p></div>`;
+  const recent = entries.filter(e=>e.type==='behavior').slice(0,5);
+  const se = document.getElementById('pbsum');
+  se.innerHTML = recent.length ? recent.map(e=>`<div class="concern-item" style="border-left-color:var(--sage);"><div class="c-beh">${e.behavior}</div><div class="c-meta">${e.time?`At ${e.time}`:''}${e.duration?' &nbsp;·&nbsp; '+e.duration:''}${e.intensity?' &nbsp;·&nbsp; Intensity '+e.intensity+'/10':''}${e.antecedent?`<br><strong>Before:</strong> ${e.antecedent}`:''}</div></div>`).join('') : `<div style="padding:0 16px 12px;font-size:13px;color:var(--text-light);">Your logged behaviors will appear here automatically.</div>`;
+}
+
+function addConcern() {
+  const inp = document.getElementById('nc'), t=inp.value.trim();
+  if(!t) return;
+  concerns.unshift({ text:t, added:new Date().toISOString() });
+  localStorage.setItem('dcb-cx', JSON.stringify(concerns));
+  inp.value=''; renderPrep(); toast('Concern added ✓');
+}
+window.addConcern = addConcern;
+
+function rmConcern(i) { concerns.splice(i,1); localStorage.setItem('dcb-cx',JSON.stringify(concerns)); renderPrep(); }
+window.rmConcern = rmConcern;
+
+function copyPrep() {
+  let txt = 'APPOINTMENT PREP\n';
+  const dt = document.getElementById('appt-dt').value; const dr = document.getElementById('appt-dr').value;
+  if(dt) txt += `Date: ${dt}\n`; if(dr) txt += `Doctor: ${dr}\n`;
+  txt += '\nQUESTIONS & CONCERNS:\n'; concerns.forEach((c,i)=>{ txt+=`${i+1}. ${c.text}\n`; });
+  txt += '\nRECENT BEHAVIORS:\n'; entries.filter(e=>e.type==='behavior').slice(0,5).forEach(e=>{ txt+=`• ${e.behavior}`; if(e.time) txt+=` (${e.time})`; if(e.intensity) txt+=` — Intensity: ${e.intensity}/10`; if(e.antecedent) txt+=`\n  Before: ${e.antecedent}`; txt+='\n'; });
+  navigator.clipboard.writeText(txt).then(()=>toast('Copied ✓')).catch(()=>toast('Try Print instead'));
+}
+window.copyPrep = copyPrep;
+
+function toast(msg) {
+  const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2200);
+}
+
+let lastTap = 0;
+document.addEventListener('touchend', e=>{ const n=Date.now(); if(n-lastTap<300) e.preventDefault(); lastTap=n; }, {passive:false});
+</script>
+</body>
+</html>
