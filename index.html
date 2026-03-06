@@ -166,8 +166,26 @@
   .lspin { width: 32px; height: 32px; border: 3px solid rgba(255,255,255,0.2); border-top-color: var(--taupe); border-radius: 50%; animation: spin 0.8s linear infinite; margin-top: 24px; }
   @keyframes spin { to { transform: rotate(360deg); } }
 
+  /* LOGIN */
+  #login-screen { position: fixed; inset: 0; background: var(--navy); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 998; padding: 32px 24px; transition: opacity 0.4s; }
+  #login-screen.hidden { opacity: 0; pointer-events: none; }
+  .login-logo { font-family: 'Playfair Display', serif; font-size: 28px; color: var(--white); margin-bottom: 6px; text-align: center; }
+  .login-sub { font-family: 'Lato', sans-serif; font-size: 13px; color: var(--taupe); letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 40px; text-align: center; }
+  .login-card { background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.12); border-radius: var(--radius); padding: 24px; width: 100%; max-width: 320px; }
+  .login-card h2 { font-family: 'Playfair Display', serif; font-size: 20px; color: var(--white); margin-bottom: 6px; }
+  .login-card p { font-size: 13px; color: var(--taupe); margin-bottom: 20px; line-height: 1.5; }
+  .login-input { width: 100%; padding: 12px 14px; border: 1.5px solid rgba(255,255,255,0.2); border-radius: var(--radius-sm); background: rgba(255,255,255,0.08); font-family: 'Lato', sans-serif; font-size: 16px; color: var(--white); outline: none; margin-bottom: 14px; }
+  .login-input::placeholder { color: rgba(255,255,255,0.35); }
+  .login-input:focus { border-color: var(--taupe); }
+  .login-btn { width: 100%; padding: 13px; background: var(--rust); color: var(--white); border: none; border-radius: var(--radius-sm); font-family: 'Montserrat', sans-serif; font-size: 13px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; cursor: pointer; }
+  .login-existing { margin-top: 20px; }
+  .login-existing-label { font-family: 'Montserrat', sans-serif; font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: rgba(255,255,255,0.4); margin-bottom: 10px; }
+  .user-pill { display: inline-flex; align-items: center; gap: 6px; padding: 7px 14px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.15); background: rgba(255,255,255,0.07); color: var(--taupe); font-family: 'Lato', sans-serif; font-size: 13px; cursor: pointer; margin: 0 6px 8px 0; transition: all 0.15s; }
+  .user-pill:active { background: rgba(255,255,255,0.15); }
+  .switch-user { margin-top: 6px; background: none; border: none; color: rgba(255,255,255,0.35); font-family: 'Lato', sans-serif; font-size: 12px; cursor: pointer; padding: 8px 0; text-decoration: underline; }
+
   @media print {
-    .tab-bar, .app-header, #toast, #loverlay { display: none !important; }
+    .tab-bar, .app-header, #toast, #loverlay, #login-screen { display: none !important; }
     .tab-panel { display: block !important; }
     body, #app { overflow: auto; height: auto; }
     .tab-content { overflow: visible; }
@@ -176,7 +194,22 @@
 </head>
 <body>
 
-<div id="loverlay">
+<div id="login-screen">
+  <div class="login-logo">Careblazers</div>
+  <div class="login-sub">Daily Tracker</div>
+  <div class="login-card">
+    <h2>Who's logging today?</h2>
+    <p>Enter your name to see your entries and keep them separate from others.</p>
+    <input class="login-input" id="login-name" type="text" placeholder="Your first name..." maxlength="30" onkeydown="if(event.key==='Enter')doLogin()">
+    <button class="login-btn" onclick="doLogin()">Start Logging</button>
+    <div class="login-existing" id="existing-users" style="display:none;">
+      <div class="login-existing-label">Or continue as</div>
+      <div id="user-pills"></div>
+    </div>
+  </div>
+</div>
+
+<div id="loverlay" class="hidden">
   <div class="llogo">Careblazers</div>
   <div class="lsub">Daily Tracker</div>
   <div class="lspin"></div>
@@ -186,9 +219,12 @@
   <div class="app-header">
     <div>
       <div class="header-title">Careblazers Tracker</div>
-      <div class="header-sub">Daily Care Log</div>
+      <div class="header-sub" id="header-user-label">Daily Care Log</div>
     </div>
-    <div class="header-date" id="hdate"></div>
+    <div style="text-align:right;">
+      <div class="header-date" id="hdate"></div>
+      <button onclick="switchUser()" style="background:none;border:none;color:var(--taupe);font-size:11px;font-family:'Lato',sans-serif;cursor:pointer;padding:2px 0;opacity:0.7;" id="switch-user-btn" style="display:none;">switch user</button>
+    </div>
   </div>
 
   <div class="tab-bar">
@@ -486,8 +522,7 @@ window._del = deleteDoc;
 window._doc = (path, id) => doc(db, path, id);
 window._q = (ref, ...constraints) => query(ref, ...constraints);
 window._ob = orderBy;
-
-window.loadEntries();
+// loadEntries is called after login
 </script>
 
 <script>
@@ -496,7 +531,63 @@ let logType = 'behavior';
 let moodEmoji = '', moodLabel = '';
 let hFilter = 'all';
 let range = 7;
-let concerns = JSON.parse(localStorage.getItem('dcb-cx') || '[]');
+let concerns = [];
+let currentUser = '';
+
+// ── LOGIN ──
+function initLogin() {
+  const saved = localStorage.getItem('dcb-user');
+  const allUsers = JSON.parse(localStorage.getItem('dcb-all-users') || '[]');
+  if(allUsers.length > 0) {
+    document.getElementById('existing-users').style.display = 'block';
+    document.getElementById('user-pills').innerHTML = allUsers.map(u =>
+      `<span class="user-pill" onclick="loginAs('${u}')">👤 ${u}</span>`
+    ).join('');
+  }
+  if(saved) { loginAs(saved); return; }
+  // Show login screen (already visible by default)
+}
+
+function doLogin() {
+  const name = document.getElementById('login-name').value.trim();
+  if(!name) { document.getElementById('login-name').focus(); return; }
+  loginAs(name);
+}
+window.doLogin = doLogin;
+
+function loginAs(name) {
+  currentUser = name;
+  localStorage.setItem('dcb-user', name);
+  // Track all users on this device
+  const allUsers = JSON.parse(localStorage.getItem('dcb-all-users') || '[]');
+  if(!allUsers.includes(name)) { allUsers.push(name); localStorage.setItem('dcb-all-users', JSON.stringify(allUsers)); }
+  // Update concerns key per user
+  concerns = JSON.parse(localStorage.getItem(`dcb-cx-${name}`) || '[]');
+  // Update UI
+  document.getElementById('login-screen').classList.add('hidden');
+  document.getElementById('header-user-label').textContent = name + "'s Log";
+  document.getElementById('switch-user-btn').style.display = 'block';
+  // Load this user's entries
+  window.loadEntries();
+}
+window.loginAs = loginAs;
+
+function switchUser() {
+  currentUser = '';
+  localStorage.removeItem('dcb-user');
+  entries = [];
+  document.getElementById('login-screen').classList.remove('hidden');
+  document.getElementById('login-name').value = '';
+  // Refresh existing users list
+  const allUsers = JSON.parse(localStorage.getItem('dcb-all-users') || '[]');
+  if(allUsers.length > 0) {
+    document.getElementById('existing-users').style.display = 'block';
+    document.getElementById('user-pills').innerHTML = allUsers.map(u =>
+      `<span class="user-pill" onclick="loginAs('${u}')">👤 ${u}</span>`
+    ).join('');
+  }
+}
+window.switchUser = switchUser;
 
 // Init
 (function(){
@@ -506,6 +597,7 @@ let concerns = JSON.parse(localStorage.getItem('dcb-cx') || '[]');
   document.getElementById('hdate').innerHTML = `${days[d.getDay()]}<br>${mos[d.getMonth()]} ${d.getDate()}`;
   const hh = String(d.getHours()).padStart(2,'0'), mm = String(d.getMinutes()).padStart(2,'0');
   setTimeout(()=>{ ['b-time','s-bed','s-wake','med-tm'].forEach(id=>{ const el=document.getElementById(id); if(el&&!el.value) el.value=`${hh}:${mm}`; }); }, 200);
+  initLogin();
 })();
 
 function switchTab(t) {
@@ -584,7 +676,7 @@ async function saveEntry(t) {
   }
   try {
     if(window._db) {
-      const ref = await window._add(window._col('entries'), e);
+      const ref = await window._add(window._col(`users/${currentUser}/entries`), e);
       e.id = ref.id;
     } else { e.id = Date.now().toString(); }
     entries.unshift(e);
@@ -625,9 +717,10 @@ function resetForm(t) {
 }
 
 window.loadEntries = async function() {
+  if(!currentUser) return;
   try {
     if(!window._db) { setTimeout(window.loadEntries, 500); return; }
-    const q = window._q(window._col('entries'), window._ob('timestamp','desc'));
+    const q = window._q(window._col(`users/${currentUser}/entries`), window._ob('timestamp','desc'));
     const snap = await window._get(q);
     entries = [];
     snap.forEach(d=>entries.push({ id:d.id, ...d.data() }));
@@ -640,7 +733,7 @@ window.loadEntries = async function() {
 
 async function deleteEntry(id) {
   if(!confirm('Delete this entry?')) return;
-  try { if(window._db) await window._del(window._doc('entries', id)); } catch(e) { console.error(e); }
+  try { if(window._db) await window._del(window._doc(`users/${currentUser}/entries`, id)); } catch(e) { console.error(e); }
   entries = entries.filter(e=>e.id!==id);
   renderHistory(); toast('Deleted');
 }
@@ -717,12 +810,12 @@ function addConcern() {
   const inp = document.getElementById('nc'), t=inp.value.trim();
   if(!t) return;
   concerns.unshift({ text:t, added:new Date().toISOString() });
-  localStorage.setItem('dcb-cx', JSON.stringify(concerns));
+  localStorage.setItem(`dcb-cx-${currentUser}`, JSON.stringify(concerns));
   inp.value=''; renderPrep(); toast('Concern added ✓');
 }
 window.addConcern = addConcern;
 
-function rmConcern(i) { concerns.splice(i,1); localStorage.setItem('dcb-cx',JSON.stringify(concerns)); renderPrep(); }
+function rmConcern(i) { concerns.splice(i,1); localStorage.setItem(`dcb-cx-${currentUser}`,JSON.stringify(concerns)); renderPrep(); }
 window.rmConcern = rmConcern;
 
 function copyPrep() {
