@@ -112,13 +112,12 @@ textarea { resize: none; min-height: 80px; line-height: 1.7; }
 .form-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 
 /* LOG TYPE SELECTOR */
-.log-type-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; padding: 12px 16px 0; }
-.log-type-btn { background: var(--white); border: 1.5px solid var(--border); border-radius: var(--radius-sm); padding: 10px 4px 8px; cursor: pointer; text-align: center; transition: all 0.15s; }
-.log-type-btn.active { background: var(--navy); border-color: var(--navy); }
-.log-type-btn .lti { font-size: 26px; display: block; margin-bottom: 6px; }
-.log-type-btn .ltt { font-family: 'Montserrat', sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 0.03em; text-transform: uppercase; color: var(--text-light); }
+.log-type-grid { display: flex; background: var(--ivory); border-radius: var(--radius); padding: 5px; gap: 3px; margin: 14px 16px 0; }
+.log-type-btn { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 5px; padding: 11px 4px 9px; border-radius: 10px; border: none; background: transparent; cursor: pointer; transition: all 0.15s; }
+.log-type-btn.active { background: var(--navy); }
+.log-type-btn .lti { font-size: 22px; display: block; }
+.log-type-btn .ltt { font-family: 'Montserrat', sans-serif; font-size: 10px; font-weight: 700; letter-spacing: 0.02em; text-transform: uppercase; color: var(--text-light); line-height: 1.2; text-align: center; }
 .log-type-btn.active .ltt { color: var(--taupe); }
-.log-type-btn { background: var(--white); border: 1.5px solid var(--border); border-radius: var(--radius-sm); padding: 12px 4px 10px; cursor: pointer; text-align: center; transition: all 0.15s; }
 
 /* BEHAVIOR CATEGORIES */
 .bcat { margin-bottom: 6px; }
@@ -432,13 +431,13 @@ input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 22p
         <button class="log-type-btn active" id="ltype-behavior" onclick="setLogType('behavior',this)"><span class="lti">🧠</span><span class="ltt">Behavior</span></button>
         <button class="log-type-btn" id="ltype-sleep" onclick="setLogType('sleep',this)"><span class="lti">😴</span><span class="ltt">Sleep</span></button>
         <button class="log-type-btn" id="ltype-eating" onclick="setLogType('eating',this)"><span class="lti">🍽</span><span class="ltt">Eating</span></button>
-        <button class="log-type-btn" id="ltype-mood" onclick="setLogType('mood',this)"><span class="lti">💛</span><span class="ltt">My Mood</span></button>
+        <button class="log-type-btn" id="ltype-mood" onclick="setLogType('mood',this)"><span class="lti">💛</span><span class="ltt">My<br>Mood</span></button>
         <button class="log-type-btn" id="ltype-medication" onclick="setLogType('medication',this)"><span class="lti">💊</span><span class="ltt">Medication</span></button>
       </div>
 
       <!-- BEHAVIOR FORM -->
       <div id="form-behavior">
-        <div class="tip-box" style="margin-top:12px;"><strong>Every behavior is communication.</strong> Log what you noticed — the more detail, the more useful it is at the doctor's appointment.</div>
+        <div class="tip-box" style="margin-top:12px;"><strong>Every behavior is communication.</strong> Log what you noticed — the more detail you capture, the better your chances of finding what's driving it and what might help.</div>
         <div class="card">
           <div class="card-header">
             <div class="card-icon" style="background:#e8f0fe;">🧠</div>
@@ -611,7 +610,7 @@ input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 22p
       <div class="barchart" id="bchart"></div>
       <div class="section-label">Time of Day</div>
       <div class="barchart" id="tchart"></div>
-      <div class="tip-box"><strong>Patterns are clues.</strong> If you're seeing the same behavior at the same time of day, that's information your doctor needs.</div>
+      <div class="tip-box"><strong>Patterns are clues.</strong> If you're seeing the same behavior at the same time of day, that's a clue worth investigating. What else was happening? What changed? The more you notice, the closer you get to understanding what's driving it — and what might help.</div>
     </div>
 
     <!-- PREP TAB -->
@@ -634,6 +633,12 @@ input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 22p
       <div id="pbsum"></div>
       <div class="prep-item"><div class="pico">💊</div><div class="ptxt"><h4>Medication list reminder</h4><p>Bring: medication name, prescriber, dose, and any over-the-counter medications.</p></div></div>
       <div class="prep-item"><div class="pico">📝</div><div class="ptxt"><h4>During the appointment</h4><ul><li>Write down the doctor's responses as they speak</li><li>Ask them to repeat anything unclear — it's okay</li><li>If your loved one may become upset, hand your list to the nurse beforehand</li></ul></div></div>
+      <div class="section-label">During the appointment</div>
+      <div style="padding: 0 16px; margin-bottom: 14px;">
+        <div class="form-row"><label>What did the doctor say?</label><textarea id="appt-doctor-notes" placeholder="Write down their responses as they speak..."></textarea></div>
+        <div class="form-row"><label>Questions I still have</label><textarea id="appt-questions-left" placeholder="Anything you weren't sure about or want to follow up on..."></textarea></div>
+        <div class="form-row"><label>How did my loved one do at the appointment?</label><textarea id="appt-loved-one-notes" placeholder="Their mood, behavior, anything worth noting..."></textarea></div>
+      </div>
       <div class="section-label">Export Your Summary</div>
       <div class="export-grid">
         <button class="export-btn" onclick="printPrep()">🖨️ Print / PDF</button>
