@@ -88,7 +88,7 @@ html, body { height: 100%; font-family: 'Lato', sans-serif; background: var(--iv
 .tab-panel.active { display: block; }
 
 /* SECTION LABELS */
-.section-label { font-family: 'Montserrat', sans-serif; font-size: 10px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-light); padding: 18px 20px 8px; }
+.section-label { font-family: 'Montserrat', sans-serif; font-size: 13px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-mid); padding: 22px 20px 10px; }
 
 /* CARDS */
 .card { background: var(--white); border-radius: var(--radius); margin: 0 16px 12px; box-shadow: var(--shadow); overflow: hidden; border: 1px solid var(--border); }
@@ -115,9 +115,10 @@ textarea { resize: none; min-height: 80px; line-height: 1.7; }
 .log-type-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; padding: 12px 16px 0; }
 .log-type-btn { background: var(--white); border: 1.5px solid var(--border); border-radius: var(--radius-sm); padding: 10px 4px 8px; cursor: pointer; text-align: center; transition: all 0.15s; }
 .log-type-btn.active { background: var(--navy); border-color: var(--navy); }
-.log-type-btn .lti { font-size: 20px; display: block; margin-bottom: 4px; }
-.log-type-btn .ltt { font-family: 'Montserrat', sans-serif; font-size: 8.5px; font-weight: 700; letter-spacing: 0.03em; text-transform: uppercase; color: var(--text-light); }
+.log-type-btn .lti { font-size: 26px; display: block; margin-bottom: 6px; }
+.log-type-btn .ltt { font-family: 'Montserrat', sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 0.03em; text-transform: uppercase; color: var(--text-light); }
 .log-type-btn.active .ltt { color: var(--taupe); }
+.log-type-btn { background: var(--white); border: 1.5px solid var(--border); border-radius: var(--radius-sm); padding: 12px 4px 10px; cursor: pointer; text-align: center; transition: all 0.15s; }
 
 /* BEHAVIOR CATEGORIES */
 .bcat { margin-bottom: 6px; }
@@ -172,7 +173,7 @@ input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 22p
 .btn-primary:disabled { background: var(--border); color: var(--text-light); cursor: not-allowed; transform: none; }
 
 /* TIP BOX */
-.tip-box { background: var(--taupe-light); border-left: 3px solid var(--sage); border-radius: 0 var(--radius-sm) var(--radius-sm) 0; padding: 11px 14px; margin: 0 16px 12px; font-size: 15px; color: var(--text-mid); line-height: 1.6; }
+.tip-box { background: var(--taupe-light); border-left: 3px solid var(--sage); border-radius: 0 var(--radius-sm) var(--radius-sm) 0; padding: 14px 16px; margin: 24px 16px 12px; font-size: 15px; color: var(--text-mid); line-height: 1.6; }
 .tip-box strong { color: var(--navy); }
 
 /* HISTORY */
@@ -210,7 +211,7 @@ input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 22p
 
 /* RANGE TABS */
 .range-tabs { display: flex; gap: 6px; padding: 0 16px; margin-bottom: 16px; flex-wrap: wrap; }
-.rtab { padding: 6px 13px; border-radius: 16px; border: 1.5px solid var(--border); background: var(--white); font-family: 'Montserrat', sans-serif; font-size: 12px; font-weight: 700; color: var(--text-light); cursor: pointer; transition: all 0.15s; }
+.rtab { padding: 8px 16px; border-radius: 16px; border: 1.5px solid var(--border); background: var(--white); font-family: 'Montserrat', sans-serif; font-size: 13px; font-weight: 700; color: var(--text-mid); cursor: pointer; transition: all 0.15s; }
 .rtab.active { background: var(--navy); border-color: var(--navy); color: var(--white); }
 
 /* STATS */
@@ -222,13 +223,13 @@ input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 22p
 /* BARS */
 .barchart { padding: 0 16px; margin-bottom: 16px; }
 .bar-row { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
-.bar-name { font-size: 13px; color: var(--text-mid); width: 120px; flex-shrink: 0; line-height: 1.3; }
+.bar-name { font-size: 14px; color: var(--text-mid); width: 130px; flex-shrink: 0; line-height: 1.3; }
 .bar-track { flex: 1; background: var(--border); border-radius: 4px; height: 8px; overflow: hidden; }
 .bar-fill { height: 100%; border-radius: 4px; background: var(--rust); transition: width 0.4s ease; }
 .bar-ct { font-size: 13px; color: var(--text-light); min-width: 20px; text-align: right; }
 
 /* APPOINTMENT PREP */
-.prep-hero { background: var(--navy); padding: 20px; margin: 0 16px 14px; border-radius: var(--radius); }
+.prep-hero { background: var(--navy); padding: 22px; margin: 16px 16px 20px; border-radius: var(--radius); }
 .prep-hero h2 { font-family: 'Playfair Display', serif; font-size: 18px; color: var(--white); margin-bottom: 6px; }
 .prep-hero p { font-size: 15px; color: var(--taupe); line-height: 1.6; }
 .prep-item { background: var(--white); border-radius: var(--radius); margin: 0 16px 8px; padding: 14px 16px; box-shadow: var(--shadow); display: flex; gap: 12px; border: 1px solid var(--border); }
@@ -264,11 +265,30 @@ input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 22p
 
 /* PRINT */
 @media print {
-  .tab-bar, .app-header, #toast, .loading-overlay, .export-grid, .pbtn, .btn-primary, .auth-screen { display: none !important; }
-  .tab-panel { display: block !important; }
-  body, #app { overflow: auto; height: auto; max-width: 100%; }
-  .tab-content { overflow: visible; }
+  /* Hide everything */
+  body > * { display: none !important; }
+  /* Show only the print summary */
+  #print-summary { display: block !important; }
 }
+#print-summary {
+  display: none;
+  font-family: 'Lato', sans-serif;
+  color: #1f2a44;
+  max-width: 700px;
+  margin: 0 auto;
+  padding: 24px;
+}
+#print-summary .ps-header { border-bottom: 2px solid #1f2a44; padding-bottom: 12px; margin-bottom: 20px; }
+#print-summary .ps-brand { font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: #718096; margin-bottom: 4px; }
+#print-summary .ps-title { font-size: 22px; font-weight: 700; color: #1f2a44; }
+#print-summary .ps-meta { font-size: 13px; color: #718096; margin-top: 4px; }
+#print-summary h2 { font-size: 13px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: #718096; margin: 24px 0 10px; border-bottom: 1px solid #e4ddd4; padding-bottom: 6px; }
+#print-summary .ps-concern { padding: 8px 0; border-bottom: 1px solid #f0ece6; font-size: 14px; }
+#print-summary .ps-bentry { padding: 10px 0; border-bottom: 1px solid #f0ece6; }
+#print-summary .ps-behaviors { font-size: 15px; font-weight: 700; color: #1f2a44; margin-bottom: 4px; }
+#print-summary .ps-detail { font-size: 13px; color: #4a5568; line-height: 1.6; }
+#print-summary .ps-followup { font-size: 13px; color: #81988e; font-style: italic; margin-top: 4px; }
+#print-summary .ps-footer { margin-top: 32px; padding-top: 12px; border-top: 1px solid #e4ddd4; font-size: 11px; color: #718096; text-align: center; }
 </style>
 </head>
 <body>
@@ -616,7 +636,7 @@ input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 22p
       <div class="prep-item"><div class="pico">📝</div><div class="ptxt"><h4>During the appointment</h4><ul><li>Write down the doctor's responses as they speak</li><li>Ask them to repeat anything unclear — it's okay</li><li>If your loved one may become upset, hand your list to the nurse beforehand</li></ul></div></div>
       <div class="section-label">Export Your Summary</div>
       <div class="export-grid">
-        <button class="export-btn" onclick="window.print()">🖨️ Print / PDF</button>
+        <button class="export-btn" onclick="printPrep()">🖨️ Print / PDF</button>
         <button class="export-btn" onclick="copyPrep()">📋 Copy Text</button>
         <button class="export-btn" onclick="emailPrep()">📧 Email</button>
         <button class="export-btn" onclick="downloadPrep()">💾 Download</button>
@@ -626,6 +646,18 @@ input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 22p
   </div>
 </div>
 
+<div id="print-summary">
+  <div class="ps-header">
+    <div class="ps-brand">Dementia Careblazers</div>
+    <div class="ps-title" id="ps-title">Behavior Summary</div>
+    <div class="ps-meta" id="ps-meta"></div>
+  </div>
+  <h2 id="ps-concerns-heading" style="display:none;">Questions & Concerns</h2>
+  <div id="ps-concerns-list"></div>
+  <h2>Recent Behaviors</h2>
+  <div id="ps-behavior-list"></div>
+  <div class="ps-footer">Generated by Dementia Careblazers Behavior Tracker &mdash; dementiacareblazers.com</div>
+</div>
 <div id="toast"></div>
 
 <!-- FIREBASE -->
@@ -1127,6 +1159,57 @@ function buildPrepText() {
   });
   return txt;
 }
+
+window.printPrep = function() {
+  const pt = localStorage.getItem(`dcb_patient_${currentUser.uid}`) || 'Loved One';
+  const name = currentUser.displayName || currentUser.email;
+  const dt = document.getElementById('appt-dt').value;
+  const dr = document.getElementById('appt-dr').value;
+
+  // Set header
+  document.getElementById('ps-title').textContent = `${pt}'s Behavior Summary`;
+  let meta = `Caregiver: ${name}`;
+  if (dt) meta += `  ·  Appointment: ${dt}`;
+  if (dr) meta += `  ·  Dr. ${dr}`;
+  document.getElementById('ps-meta').textContent = meta;
+
+  // Concerns
+  const concernsList = document.getElementById('ps-concerns-list');
+  const concernsHeading = document.getElementById('ps-concerns-heading');
+  if (concerns.length > 0) {
+    concernsHeading.style.display = 'block';
+    concernsList.innerHTML = concerns.map((c,i) => `<div class="ps-concern">${i+1}. ${c.text}</div>`).join('');
+  } else {
+    concernsHeading.style.display = 'none';
+    concernsList.innerHTML = '';
+  }
+
+  // Recent behaviors
+  const behEntries = entries.filter(e => e.type === 'behavior').slice(0, 10);
+  const behList = document.getElementById('ps-behavior-list');
+  if (behEntries.length === 0) {
+    behList.innerHTML = '<p style="font-size:13px;color:#718096;">No behaviors logged yet.</p>';
+  } else {
+    behList.innerHTML = behEntries.map(e => {
+      let detail = [];
+      if (e.dateLabel) detail.push(e.dateLabel + (e.time ? ' at ' + e.time : ''));
+      if (e.intensity) detail.push(`Intensity: ${e.intensity}/10`);
+      if (e.duration) detail.push(`Duration: ${e.duration}`);
+      let html = `<div class="ps-bentry">
+        <div class="ps-behaviors">${(e.behaviors||[]).join(', ')}</div>
+        <div class="ps-detail">${detail.join('  ·  ')}</div>`;
+      if (e.antecedent) html += `<div class="ps-detail"><strong>Before:</strong> ${e.antecedent}</div>`;
+      if (e.consequence) html += `<div class="ps-detail"><strong>After:</strong> ${e.consequence}</div>`;
+      if (e.brainstorm) html += `<div class="ps-detail"><strong>Possible causes:</strong> ${e.brainstorm}</div>`;
+      if (e.followup) html += `<div class="ps-followup">Follow-up: ${e.followup}</div>`;
+      if (e.notes) html += `<div class="ps-detail"><em>${e.notes}</em></div>`;
+      html += '</div>';
+      return html;
+    }).join('');
+  }
+
+  window.print();
+};
 
 window.copyPrep = function() { navigator.clipboard.writeText(buildPrepText()).then(()=>toast('Copied ✓')).catch(()=>toast('Try Print instead')); };
 
