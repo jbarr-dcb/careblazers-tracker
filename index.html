@@ -185,6 +185,7 @@ input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 22p
 .b-eat { background: #fef9e7; color: #b7950b; }
 .b-mood { background: #fdf2f8; color: #9b59b6; }
 .b-med { background: #e9f7ef; color: #1e8449; }
+.b-appt { background: #f0eeff; color: #5b3fa8; }
 .etime { font-size: 13px; color: var(--text-light); margin-top: 2px; }
 .edel { background: none; border: none; cursor: pointer; color: var(--text-light); font-size: 18px; padding: 0 2px; line-height: 1; }
 .hentry-body { padding: 10px 14px 12px; }
@@ -591,6 +592,7 @@ input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 22p
         <div class="rtab" onclick="filtHistory(this,'eating')">🍽 Eating</div>
         <div class="rtab" onclick="filtHistory(this,'mood')">💛 Mood</div>
         <div class="rtab" onclick="filtHistory(this,'medication')">💊 Meds</div>
+        <div class="rtab" onclick="filtHistory(this,'appointment')">📋 Appt Notes</div>
       </div>
       <div id="hlist"></div>
     </div>
@@ -638,6 +640,8 @@ input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 22p
         <div class="form-row"><label>What did the doctor say?</label><textarea id="appt-doctor-notes" placeholder="Write down their responses as they speak..."></textarea></div>
         <div class="form-row"><label>Questions I still have</label><textarea id="appt-questions-left" placeholder="Anything you weren't sure about or want to follow up on..."></textarea></div>
         <div class="form-row"><label>How did my loved one do at the appointment?</label><textarea id="appt-loved-one-notes" placeholder="Their mood, behavior, anything worth noting..."></textarea></div>
+        <button class="btn-primary" onclick="saveApptNotes()" style="margin: 0 0 8px;">Save Appointment Notes</button>
+        <div id="appt-save-confirm" style="display:none;text-align:center;font-size:14px;color:var(--sage);padding:8px 0;">Saved — find these notes in your History tab under Appt Notes.</div>
       </div>
       <div class="section-label">Export Your Summary</div>
       <div class="export-grid">
@@ -1044,8 +1048,8 @@ function formatDateLabel(dateStr) {
   return new Date(dateStr + 'T12:00:00').toLocaleDateString('en-US', { weekday:'long', month:'long', day:'numeric' });
 }
 
-const BADGE_MAP = { behavior:'b-beh', sleep:'b-slp', eating:'b-eat', mood:'b-mood', medication:'b-med' };
-const LABEL_MAP = { behavior:'Behavior', sleep:'Sleep', eating:'Eating', mood:'My Mood', medication:'Medication' };
+const BADGE_MAP = { behavior:'b-beh', sleep:'b-slp', eating:'b-eat', mood:'b-mood', medication:'b-med', appointment:'b-appt' };
+const LABEL_MAP = { behavior:'Behavior', sleep:'Sleep', eating:'Eating', mood:'My Mood', medication:'Medication', appointment:'Appt Notes' };
 
 function renderEntry(e) {
   const tm = e.time || e.bedtime || e.medTime || (e.timestamp instanceof Date ? e.timestamp.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'}) : '');
@@ -1058,7 +1062,15 @@ function renderEntry(e) {
   } else if (e.type==='sleep') { main=e.quality||'Sleep logged'; const pts=[]; if(e.bedtime&&e.waketime) pts.push(`${e.bedtime} – ${e.waketime}`); if(e.issues&&e.issues.length) pts.push(e.issues.join(', ')); detail=pts.join(' &nbsp;·&nbsp; ');
   } else if (e.type==='eating') { main=`${e.meal||'Meal'} — ${e.amount||''}`; const pts=[]; if(e.issues&&e.issues.length) pts.push(e.issues.join(', ')); if(e.fluids) pts.push(`Fluids: ${e.fluids}`); detail=pts.join(' &nbsp;·&nbsp; ');
   } else if (e.type==='mood') { main=`${e.moodEmoji||''} ${e.moodLabel||'Check-in'}`; detail=`Stress: ${e.stress}/10${e.factors&&e.factors.length?' &nbsp;·&nbsp; '+e.factors.join(', '):''}`;
-  } else if (e.type==='medication') { main=e.medName||'Medication'; detail=[e.medType,e.prescriber?`Dr. ${e.prescriber}`:''].filter(Boolean).join(' &nbsp;·&nbsp; '); }
+  } else if (e.type==='medication') { main=e.medName||'Medication'; detail=[e.medType,e.prescriber?`Dr. ${e.prescriber}`:''].filter(Boolean).join(' &nbsp;·&nbsp; ');
+  } else if (e.type==='appointment') {
+    main = `Appointment${e.apptDoctor ? ' — Dr. ' + e.apptDoctor : ''}${e.apptDate ? ' on ' + e.apptDate : ''}`;
+    const pts = [];
+    if (e.apptDoctorNotes) pts.push(`<strong>Doctor said:</strong> ${e.apptDoctorNotes}`);
+    if (e.apptQuestionsLeft) pts.push(`<strong>Still have questions about:</strong> ${e.apptQuestionsLeft}`);
+    if (e.apptLovedOneNotes) pts.push(`<strong>Loved one at appointment:</strong> ${e.apptLovedOneNotes}`);
+    detail = pts.join('<br>');
+  }
 
   const brainstormHtml = e.brainstorm ? `<div class="enote">💡 <strong>Possible causes:</strong> ${e.brainstorm}</div>` : '';
   const followupHtml = e.followup
@@ -1214,6 +1226,41 @@ window.printPrep = function() {
   }
 
   window.print();
+};
+
+window.saveApptNotes = async function() {
+  const doctorNotes = document.getElementById('appt-doctor-notes').value.trim();
+  const questionsLeft = document.getElementById('appt-questions-left').value.trim();
+  const lovedOneNotes = document.getElementById('appt-loved-one-notes').value.trim();
+
+  if (!doctorNotes && !questionsLeft && !lovedOneNotes) {
+    toast('Add some notes first');
+    return;
+  }
+
+  const btn = document.querySelector('[onclick="saveApptNotes()"]');
+  if (btn) { btn.disabled = true; btn.textContent = 'Saving...'; }
+
+  try {
+    await saveToFirestore('appointment', {
+      apptDate: document.getElementById('appt-dt').value,
+      apptDoctor: document.getElementById('appt-dr').value.trim(),
+      apptDoctorNotes: doctorNotes,
+      apptQuestionsLeft: questionsLeft,
+      apptLovedOneNotes: lovedOneNotes,
+    });
+
+    // Clear fields and show confirm
+    ['appt-doctor-notes','appt-questions-left','appt-loved-one-notes'].forEach(id => document.getElementById(id).value = '');
+    document.getElementById('appt-save-confirm').style.display = 'block';
+    setTimeout(() => document.getElementById('appt-save-confirm').style.display = 'none', 4000);
+    toast('Appointment notes saved ✓');
+  } catch(e) {
+    console.error(e);
+    toast('Error saving — please try again');
+  }
+
+  if (btn) { btn.disabled = false; btn.textContent = 'Save Appointment Notes'; }
 };
 
 window.copyPrep = function() { navigator.clipboard.writeText(buildPrepText()).then(()=>toast('Copied ✓')).catch(()=>toast('Try Print instead')); };
